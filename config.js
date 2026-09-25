@@ -1,2 +1,1 @@
-// Set the HTTPS gateway URL before deploying this folder to GitHub Pages.
-window.PORTAL_API = '';
+window.PORTAL_API = "https://menus-colour-payday-journal.trycloudflare.com";
