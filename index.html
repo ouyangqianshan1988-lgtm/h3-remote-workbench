@@ -25,6 +25,7 @@ textarea,select{width:100%;background:#111d30;color:#edf4ff;border:1px solid #36
       <p id="service-message" class="notice" role="status"></p>
       <form id="task-form" class="composer">
         <h2>新建任务</h2>
+        <label for="model">生成模型</label><select id="model" name="model"><option value="original">原版 H3</option><option value="dasiwa-v2" disabled>DaSiWa H3 Hybrid V2 · 未安装</option></select>
         <label for="prompt">描述视频</label><textarea id="prompt" name="prompt" rows="4" maxlength="4000" required placeholder="用 Picture 1、Picture 2 指代参考图，描述动作、场景与声音。"></textarea>
         <label for="images">参考图片（最多4张，每张8MB）</label><input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple required><p class="hint">不展示图片预览，按选择顺序编号。</p>
         <div class="options"><div><label for="orientation">画幅</label><select id="orientation" name="orientation"><option value="landscape">横屏 · 1280 × 720</option><option value="portrait">竖屏 · 720 × 1280</option></select></div><div><label for="seconds">时长</label><select id="seconds" name="seconds"><option value="0.9166666666666666">约1秒 · 测试</option><option value="2.1666666666666665">约2秒</option><option value="5.166666666666667" selected>约5秒</option></select></div></div>
@@ -54,6 +55,10 @@ async function api(path, options = {}) {
 async function refresh() {
   try {
     const data = await api('/api/tasks'); $('service-message').textContent = data.message;
+    for (const model of data.models || []) {
+      const option = Array.from($('model').options).find(o => o.value === model.id);
+      if (option) { option.disabled = !model.available; option.textContent = model.name + (model.available ? '' : ' · 未安装'); }
+    }
     $('submit-button').disabled = !data.accepting_tasks || data.tasks.some(t => ['uploading','queued','running','ready','downloading'].includes(t.state));
     if (!downloading) renderTasks(data.tasks);
   }

@@ -2,6 +2,14 @@
 
 GitHub 托管网页，本机 RTX 5090 D v2 运行 H3 720p / 14步工作流。网页不预览输入图片或生成视频，本机独立看板只显示队列和运行状态。
 
+网页：[H3 工作台](https://ouyangqianshan1988-lgtm.github.io/h3-remote-workbench/)。测试版使用临时 HTTPS 隧道；工作站和隧道需要保持运行，隧道重新启动后需更新 config.js 中的地址。
+
+## 模型选择
+
+支持原版 H3 和 [DaSiWa H3 Hybrid V2](https://civitai.com/models/2877206?modelVersionId=3314675)。服务端仅接受固定模型白名单；未安装的模型无法提交。两者使用完全相同的 12+2 分步采样图，仅替换扩散模型。14步是沿用当前速度配置，作者对非蒸馏 V2 推荐20至25步，画质需要实测。
+
+DaSiWa 官方 INT8 文件：`DasiwaMinimaxH3_dasiwaHybridV2_3203130.safetensors`；SHA256：`4CB8E1EAA9C3E5C664822760890BCBE6078455401CFA43205BAF322E856D25F8`。需放入 ComfyUI/models/diffusion_models，保留原文件元数据及上游许可。模型权重不在本仓库内。
+
 ## 本机启动
 
 本项目目录应放在 ComfyUI 迁移包根目录下，名为 `web_portal`。运行包根目录的 `Start_H3_Web.bat`。需包内已有 Python、ComfyUI、TimelineDirector 插件及五项模型。
