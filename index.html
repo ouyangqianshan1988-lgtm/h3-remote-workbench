@@ -28,7 +28,7 @@ textarea,select{width:100%;background:#111d30;color:#edf4ff;border:1px solid #36
         <label for="model">生成模型</label><select id="model" name="model"><option value="original">H3二采</option></select>
         <label for="prompt">描述视频</label><textarea id="prompt" name="prompt" rows="4" maxlength="4000" required placeholder="用 Picture 1、Picture 2 指代参考图，描述动作、场景与声音。"></textarea>
         <label for="images">参考图片（可选，最多4张，每张8MB）</label><input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple><p class="hint">不上传图片时，按文字描述生成视频。上传图片不展示预览，按选择顺序编号。</p>
-        <label for="resolution">画质</label><select id="resolution" name="resolution"><option value="720p">720p · 最长30秒</option><option value="1080p">1080p · 最长15秒</option></select><p id="resolution-hint" class="hint"></p>
+        <label for="resolution">画质</label><select id="resolution" name="resolution"><option value="720p">720p · 最长30秒</option><option value="768p">768p · 画质基准 · 最长30秒</option><option value="1080p">1080p · 最长15秒</option></select><p id="resolution-hint" class="hint"></p>
         <div class="options"><div><label for="orientation">画幅</label><select id="orientation" name="orientation"><option value="landscape">横屏 · 1280 × 720</option><option value="portrait">竖屏 · 720 × 1280</option></select></div><div><label for="seconds">时长</label><select id="seconds" name="seconds"><option value="0.9166666666666666">约1秒 · 测试</option><option value="2.1666666666666665">约2秒</option><option value="5.166666666666667" selected>约5秒</option><option value="10">约10秒</option><option value="15">约15秒</option><option value="20">约20秒</option><option value="30">约30秒</option></select></div></div>
         <button id="submit-button" class="primary" type="submit">提交生成</button><p id="task-message" role="status"></p>
       </form>
@@ -45,17 +45,22 @@ const receipts = new Map();
 const $ = id => document.getElementById(id);
 function updateResolution() {
   const fullHD = $('resolution').value === '1080p';
+  const native = $('resolution').value === '768p';
   const limit = fullHD ? 15 : 30;
   for (const option of $('seconds').options) {
     option.disabled = Number(option.value) > limit;
     option.hidden = option.disabled;
   }
   if (Number($('seconds').value) > limit) $('seconds').value = String(limit);
-  $('orientation').options[0].textContent = fullHD ? '横屏 · 1920 × 1080' : '横屏 · 1280 × 720';
-  $('orientation').options[1].textContent = fullHD ? '竖屏 · 1080 × 1920' : '竖屏 · 720 × 1280';
-  $('resolution-hint').textContent = fullHD ? '1080p 最长15秒，单段生成。' : '720p 最长30秒，单段生成。';
+  $('orientation').options[0].textContent = fullHD ? '横屏 · 1920 × 1080' : native ? '横屏 · 1344 × 768' : '横屏 · 1280 × 720';
+  $('orientation').options[1].textContent = fullHD ? '竖屏 · 1080 × 1920' : native ? '竖屏 · 768 × 1344' : '竖屏 · 720 × 1280';
+  $('resolution-hint').textContent = fullHD ? '1080p 最长15秒，单段生成。' : native ? '768p 最长30秒，单段生成；画质优先建议从此分辨率开始。' : '720p 最长30秒，单段生成。';
 }
 $('resolution').addEventListener('change', updateResolution);
+$('model').addEventListener('change', () => {
+  if ($('model').value === 'h3-quality') $('resolution').value = '768p';
+  updateResolution();
+});
 updateResolution();
 const base = (window.PORTAL_API || (['localhost', '127.0.0.1'].includes(location.hostname) ? location.origin : '')).replace(/\/$/, '');
 async function api(path, options = {}) {
