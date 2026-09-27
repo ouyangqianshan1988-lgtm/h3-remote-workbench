@@ -28,7 +28,7 @@ textarea,select{width:100%;background:#111d30;color:#edf4ff;border:1px solid #36
         <label for="model">生成模型</label><select id="model" name="model"><option value="original">原版 H3</option><option value="dasiwa-v2" disabled>DaSiWa H3 Hybrid V2 · 未安装</option></select>
         <label for="prompt">描述视频</label><textarea id="prompt" name="prompt" rows="4" maxlength="4000" required placeholder="用 Picture 1、Picture 2 指代参考图，描述动作、场景与声音。"></textarea>
         <label for="images">参考图片（可选，最多4张，每张8MB）</label><input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple><p class="hint">不上传图片时，按文字描述生成视频。上传图片不展示预览，按选择顺序编号。</p>
-        <div class="options"><div><label for="orientation">画幅</label><select id="orientation" name="orientation"><option value="landscape">横屏 · 1280 × 720</option><option value="portrait">竖屏 · 720 × 1280</option></select></div><div><label for="seconds">时长</label><select id="seconds" name="seconds"><option value="0.9166666666666666">约1秒 · 测试</option><option value="2.1666666666666665">约2秒</option><option value="5.166666666666667" selected>约5秒</option></select></div></div>
+        <div class="options"><div><label for="orientation">画幅</label><select id="orientation" name="orientation"><option value="landscape">横屏 · 1280 × 720</option><option value="portrait">竖屏 · 720 × 1280</option></select></div><div><label for="seconds">时长</label><select id="seconds" name="seconds"><option value="0.9166666666666666">约1秒 · 测试</option><option value="2.1666666666666665">约2秒</option><option value="5.166666666666667" selected>约5秒</option><option value="10">约10秒</option><option value="15">约15秒</option><option value="20">约20秒</option><option value="30">约30秒</option></select></div></div>
         <button id="submit-button" class="primary" type="submit">提交生成</button><p id="task-message" role="status"></p>
       </form>
       <div id="tasks" class="tasks"><div class="empty"><span class="empty-mark">—</span><h2>暂无运行任务</h2><p>运行中的任务将在这里显示进度。</p></div></div>
@@ -39,6 +39,7 @@ textarea,select{width:100%;background:#111d30;color:#edf4ff;border:1px solid #36
 let token = '';
 let poll;
 let downloading = false;
+let archiveEnabled = false;
 const receipts = new Map();
 const $ = id => document.getElementById(id);
 const base = (window.PORTAL_API || (['localhost', '127.0.0.1'].includes(location.hostname) ? location.origin : '')).replace(/\/$/, '');
@@ -55,11 +56,12 @@ async function api(path, options = {}) {
 async function refresh() {
   try {
     const data = await api('/api/tasks'); $('service-message').textContent = data.message;
+    archiveEnabled = Boolean(data.archive);
     for (const model of data.models || []) {
       const option = Array.from($('model').options).find(o => o.value === model.id);
       if (option) { option.disabled = !model.available; option.textContent = model.name + (model.available ? '' : ' · 未安装'); }
     }
-    $('submit-button').disabled = !data.accepting_tasks || data.tasks.some(t => ['uploading','queued','running','ready','downloading'].includes(t.state));
+    $('submit-button').disabled = !data.accepting_tasks || data.tasks.some(t => ['uploading','queued','running','ready','downloading','archive_pending'].includes(t.state));
     if (!downloading) renderTasks(data.tasks);
   }
   catch (error) { $('service-message').textContent = error.message; }
@@ -108,7 +110,7 @@ function renderTasks(tasks) {
 async function acknowledge(id, receipt) {
   try {
     await api('/api/tasks/' + id + '/downloaded', {method:'POST',body:JSON.stringify({receipt})});
-    receipts.delete(id); $('task-message').textContent = '下载完成，工作站上的输入和结果已删除。'; await refresh();
+    receipts.delete(id); $('task-message').textContent = archiveEnabled ? '下载完成，临时文件已清理，账号归档已保留。' : '下载完成，工作站上的输入和结果已删除。'; await refresh();
   } catch(error) { receipts.set(id,receipt); $('task-message').textContent = '文件已保存，但清理确认失败。请点击任务旁的清理按钮重试。'; }
 }
 async function download(id) {
