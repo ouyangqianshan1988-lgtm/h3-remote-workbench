@@ -1,1 +1,1 @@
-window.PORTAL_API = "https://kelly-more-chubby-exempt.trycloudflare.com";
+window.PORTAL_API = "https://increases-manga-public-varied.trycloudflare.com";
