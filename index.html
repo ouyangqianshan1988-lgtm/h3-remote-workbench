@@ -110,7 +110,7 @@ function renderTasks(tasks) {
     body.append(name, status); row.append(body);
     if (task.state === 'ready') {
       const button = document.createElement('button'); button.className = 'download';
-      button.textContent = receipts.has(task.id) ? '已保存，清理工作站副本' : '下载视频';
+      button.textContent = receipts.has(task.id) ? (archiveEnabled ? '已保存，完成任务' : '已保存，清理工作站副本') : '下载视频';
       button.onclick = () => receipts.has(task.id) ? acknowledge(task.id, receipts.get(task.id)) : download(task.id, task.filename || 'H3-result.mp4');
       row.append(button);
     }
@@ -128,7 +128,7 @@ function renderTasks(tasks) {
 async function acknowledge(id, receipt) {
   try {
     await api('/api/tasks/' + id + '/downloaded', {method:'POST',body:JSON.stringify({receipt})});
-    receipts.delete(id); $('task-message').textContent = archiveEnabled ? '下载完成，临时文件已清理，账号归档已保留。' : '下载完成，工作站上的输入和结果已删除。'; await refresh();
+    receipts.delete(id); $('task-message').textContent = archiveEnabled ? '下载完成，账号归档已保留。' : '下载完成，工作站上的输入和结果已删除。'; await refresh();
   } catch(error) { receipts.set(id,receipt); $('task-message').textContent = '文件已保存，但清理确认失败。请点击任务旁的清理按钮重试。'; }
 }
 async function download(id, filename) {
@@ -153,7 +153,7 @@ async function download(id, filename) {
       const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url;a.download=filename;a.click();
       setTimeout(()=>URL.revokeObjectURL(url),60000);
       receipts.set(id,receipt);
-      $('task-message').textContent='浏览器已接收文件。确认下载已保存后，点击“已保存，清理工作站副本”。';
+      $('task-message').textContent=archiveEnabled ? '浏览器已接收归档视频。保存后点击“已保存，完成任务”；临时文件已在归档时清理。' : '浏览器已接收文件。确认下载已保存后，点击“已保存，清理工作站副本”。';
     }
   } catch(error) {
     if(writable) await writable.abort().catch(()=>{});
