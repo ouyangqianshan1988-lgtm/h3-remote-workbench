@@ -111,7 +111,7 @@ function renderTasks(tasks) {
     if (task.state === 'ready') {
       const button = document.createElement('button'); button.className = 'download';
       button.textContent = receipts.has(task.id) ? '已保存，清理工作站副本' : '下载视频';
-      button.onclick = () => receipts.has(task.id) ? acknowledge(task.id, receipts.get(task.id)) : download(task.id);
+      button.onclick = () => receipts.has(task.id) ? acknowledge(task.id, receipts.get(task.id)) : download(task.id, task.filename || 'H3-result.mp4');
       row.append(button);
     }
     if (['ready','queued','failed'].includes(task.state)) {
@@ -131,12 +131,12 @@ async function acknowledge(id, receipt) {
     receipts.delete(id); $('task-message').textContent = archiveEnabled ? '下载完成，临时文件已清理，账号归档已保留。' : '下载完成，工作站上的输入和结果已删除。'; await refresh();
   } catch(error) { receipts.set(id,receipt); $('task-message').textContent = '文件已保存，但清理确认失败。请点击任务旁的清理按钮重试。'; }
 }
-async function download(id) {
+async function download(id, filename) {
   let writable;
   downloading = true;
   try {
     if (window.showSaveFilePicker) {
-      const handle = await window.showSaveFilePicker({suggestedName:'H3-result.mp4',types:[{description:'MP4视频',accept:{'video/mp4':['.mp4']}}]});
+      const handle = await window.showSaveFilePicker({suggestedName:filename,types:[{description:'MP4视频',accept:{'video/mp4':['.mp4']}}]});
       writable = await handle.createWritable();
     }
     const response = await fetch(base + '/api/tasks/' + id + '/download', {cache:'no-store',headers:{Authorization:'Bearer '+token}});
@@ -150,7 +150,7 @@ async function download(id) {
       await acknowledge(id,receipt);
     } else {
       const blob = await response.blob();
-      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url;a.download='H3-result.mp4';a.click();
+      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url;a.download=filename;a.click();
       setTimeout(()=>URL.revokeObjectURL(url),60000);
       receipts.set(id,receipt);
       $('task-message').textContent='浏览器已接收文件。确认下载已保存后，点击“已保存，清理工作站副本”。';
