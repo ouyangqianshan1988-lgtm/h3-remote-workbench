@@ -6,6 +6,8 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f1b2e'/%3E%3Cpath d='M9 8v16m14-16v16M9 16h14' stroke='%2355ccff' stroke-width='4'/%3E%3C/svg%3E">
   <style>:root{font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;color:#e6edf7;background:#0b1220;font-synthesis:none;color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;flex-direction:column}header{height:88px;padding:0 6vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #223048}.brand{color:#e6edf7;text-decoration:none;display:flex;align-items:center;gap:14px;font-size:18px;font-weight:650}.brand span{background:#172b43;color:#65d2ff;border:1px solid #2d5271;padding:8px;border-radius:8px;letter-spacing:-1px}main{width:min(1100px,88vw);margin:auto;flex:1}.login{width:min(420px,100%);margin:90px auto}.eyebrow{font-size:14px;color:#65d2ff;letter-spacing:2px;margin:0 0 18px}h1{font-size:clamp(28px,4vw,40px);line-height:1.35;margin:0;font-weight:650;letter-spacing:-1px}.intro{color:#a3b2c8;line-height:1.8;margin:16px 0 32px;font-size:16px}label{display:block;font-size:14px;margin:22px 0 10px}input{width:100%;background:#111d30;color:#edf4ff;border:1px solid #36465e;border-radius:8px;padding:14px;font-size:16px;outline:none}input:focus{border-color:#65d2ff;box-shadow:0 0 0 3px #65d2ff22}button{cursor:pointer;font:inherit;border-radius:8px;padding:12px 18px}button:focus-visible{outline:3px solid #fff;outline-offset:3px}.primary{width:100%;margin-top:30px;background:#65d2ff;color:#071421;border:0;font-weight:650}.primary:hover{background:#96e0ff}button:disabled{opacity:.6;cursor:wait}.quiet{background:transparent;color:#b1c5dc;border:1px solid #354359;font-size:14px;margin-left:18px}.heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:65px}.chip{background:#14263c;color:#aacce6;border:1px solid #294460;padding:10px 14px;border-radius:6px;font-size:14px}.notice{padding:18px 20px;background:#142034;border-left:3px solid #65d2ff;line-height:1.7;color:#b8c9dd;margin:32px 0}.empty{border:1px dashed #34435a;border-radius:12px;padding:70px 20px;text-align:center}.empty-mark{color:#5c799b;font-size:36px}h2{font-size:20px;font-weight:500}.empty p{color:#8fa4be;font-size:16px}#login-message{color:#ffbaa9;line-height:1.7;min-height:1.7em;font-size:14px}footer{padding:28px 6vw;color:#7f94af;font-size:14px;display:flex;justify-content:space-between}[hidden]{display:none!important}@media(max-width:600px){header{height:72px}.login{margin:55px auto}.heading{align-items:flex-start;flex-direction:column;margin-top:40px}.chip{font-size:14px}footer{gap:18px;flex-direction:column}.empty{padding:40px 15px}}
 textarea,select{width:100%;background:#111d30;color:#edf4ff;border:1px solid #36465e;border-radius:8px;padding:14px;font:inherit;font-size:16px}textarea{resize:vertical}.composer{padding:28px;border:1px solid #29394f;border-radius:12px;margin-bottom:28px;background:#101b2c}.composer h2{margin:0}.options{display:flex;gap:20px}.options>div{flex:1}.hint{font-size:14px;color:#93a6bf}.task-row{display:flex;gap:16px;align-items:center;border:1px solid #2b3d56;padding:20px;border-radius:10px;margin-bottom:14px}.task-row>div{flex:1}.task-row h2{font-size:16px;margin:0}.task-row p{font-size:14px;color:#a9bdd6;margin:12px 0 0}.download{background:#65d2ff;border:0;color:#091c2e}#task-message{line-height:1.7;font-size:14px;color:#b3c8e0}@media(max-width:600px){.options,.task-row{flex-direction:column;align-items:stretch}.composer{padding:20px}.task-row .quiet{margin:0}}
+
+a.download{display:inline-block;text-decoration:none;border-radius:8px;padding:12px 18px;font:inherit;text-align:center}a.download:focus-visible{outline:3px solid white;outline-offset:3px}
 </style><script src="config.js"></script>
 </head>
 <body>
@@ -42,6 +44,7 @@ let poll;
 let downloading = false;
 let archiveEnabled = false;
 const receipts = new Map();
+const downloadLinks = new Map();
 const $ = id => document.getElementById(id);
 function updateResolution() {
   const fullHD = $('resolution').value === '1080p';
@@ -114,10 +117,25 @@ function renderTasks(tasks) {
     const status = document.createElement('p'); status.textContent = task.message;
     body.append(name, status); row.append(body);
     if (task.state === 'ready') {
-      const button = document.createElement('button'); button.className = 'download';
-      button.textContent = receipts.has(task.id) ? (archiveEnabled ? '已保存，完成任务' : '已保存，清理工作站副本') : '下载视频';
-      button.onclick = () => receipts.has(task.id) ? acknowledge(task.id, receipts.get(task.id)) : download(task.id, task.filename || 'H3-result.mp4');
-      row.append(button);
+      const ticket = downloadLinks.get(task.id);
+      if (ticket && ticket.expires * 1000 > Date.now()) {
+        const link = document.createElement('a'); link.className = 'download';
+        link.href = base + ticket.path; link.textContent = '下载视频 / 右键另存为';
+        link.referrerPolicy = 'no-referrer';
+        link.onclick = () => { $('task-message').textContent = '请在浏览器下载列表（Ctrl+J）查看进度。结果仍保留，下载失败可再次点击。'; };
+        row.append(link);
+        const done = document.createElement('button'); done.className = 'quiet';
+        done.textContent = '确认已保存，完成任务';
+        done.onclick = () => {
+          if (confirm('请确认视频已下载完整且能正常播放。确认后将关闭下载入口，并清理主账号的工作站副本。')) acknowledge(task.id, ticket.receipt);
+        };
+        row.append(done);
+      } else {
+        const button = document.createElement('button'); button.className = 'download';
+        button.textContent = '获取下载链接';
+        button.onclick = () => prepareDownload(task.id);
+        row.append(button);
+      }
     }
     if (['ready','queued','failed'].includes(task.state)) {
       const cancel = document.createElement('button'); cancel.className = 'quiet'; cancel.textContent = '放弃并清理';
@@ -132,38 +150,17 @@ function renderTasks(tasks) {
 }
 async function acknowledge(id, receipt) {
   try {
-    await api('/api/tasks/' + id + '/downloaded', {method:'POST',body:JSON.stringify({receipt})});
-    receipts.delete(id); $('task-message').textContent = archiveEnabled ? '下载完成，账号归档已保留。' : '下载完成，工作站上的输入和结果已删除。'; await refresh();
+    await api('/api/tasks/' + id + '/downloaded', {method:'POST',body:JSON.stringify({receipt,confirmed_saved:true})});
+    receipts.delete(id); downloadLinks.delete(id); $('task-message').textContent = archiveEnabled ? '下载完成，账号归档已保留。' : '下载完成，工作站上的输入和结果已删除。'; await refresh();
   } catch(error) { receipts.set(id,receipt); $('task-message').textContent = '文件已保存，但清理确认失败。请点击任务旁的清理按钮重试。'; }
 }
-async function download(id, filename) {
-  let writable;
-  downloading = true;
+async function prepareDownload(id) {
   try {
-    if (window.showSaveFilePicker) {
-      const handle = await window.showSaveFilePicker({suggestedName:filename,types:[{description:'MP4视频',accept:{'video/mp4':['.mp4']}}]});
-      writable = await handle.createWritable();
-    }
-    const response = await fetch(base + '/api/tasks/' + id + '/download', {cache:'no-store',headers:{Authorization:'Bearer '+token}});
-    if (!response.ok) throw new Error('下载失败，请重试。');
-    const receipt = response.headers.get('X-Download-Receipt');
-    if (writable) {
-      const reader = response.body.getReader(); let received=0;
-      while (true) { const {value,done}=await reader.read(); if(done) break; received+=value.byteLength; await writable.write(value); }
-      if (received !== Number(response.headers.get('Content-Length'))) throw new Error('文件传输未完成，请重试。');
-      await writable.close(); writable=null;
-      await acknowledge(id,receipt);
-    } else {
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url;a.download=filename;a.click();
-      setTimeout(()=>URL.revokeObjectURL(url),60000);
-      receipts.set(id,receipt);
-      $('task-message').textContent=archiveEnabled ? '浏览器已接收归档视频。保存后点击“已保存，完成任务”；临时文件已在归档时清理。' : '浏览器已接收文件。确认下载已保存后，点击“已保存，清理工作站副本”。';
-    }
-  } catch(error) {
-    if(writable) await writable.abort().catch(()=>{});
-    if(error.name!=='AbortError') $('task-message').textContent=error.message;
-  } finally { downloading=false; await refresh(); }
+    const ticket = await api('/api/tasks/' + id + '/download-link', {method:'POST'});
+    downloadLinks.set(id, ticket);
+    $('task-message').textContent='下载链接已准备好（1小时内有效）。点击下载，或右键选择“链接另存为”。下载进度在浏览器下载列表中查看；确认保存前不会自动清理。';
+    await refresh();
+  } catch(error) { $('task-message').textContent=error.message; }
 }
 $('task-form').addEventListener('submit',async event=>{
   event.preventDefault(); $('submit-button').disabled=true; $('task-message').textContent='正在上传…';
@@ -178,7 +175,7 @@ if (document.modelContext?.registerTool) {
 }
 $('logout').addEventListener('click', async () => {
   try { await api('/api/logout', {method: 'POST'}); } catch (_) {}
-  token = ''; clearInterval(poll); $('workspace').hidden = true; $('identity').hidden = true; $('login-panel').hidden = false;
+  token = ''; downloadLinks.clear(); receipts.clear(); clearInterval(poll); $('workspace').hidden = true; $('identity').hidden = true; $('login-panel').hidden = false;
 });
 </script></body>
 </html>
