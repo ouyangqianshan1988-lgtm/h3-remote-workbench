@@ -1,1 +1,1 @@
-window.PORTAL_API = "https://means-pressing-com-cheap.trycloudflare.com";
+window.PORTAL_API = "https://lenses-pressure-driven-arabia.trycloudflare.com";
