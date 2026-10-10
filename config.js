@@ -1,1 +1,1 @@
-window.PORTAL_API = "https://demanding-strategies-interventions-heaven.trycloudflare.com";
+window.PORTAL_API = "https://richardson-comprehensive-pst-gsm.trycloudflare.com";
