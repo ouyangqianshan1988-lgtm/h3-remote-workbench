@@ -1,1 +1,1 @@
-window.PORTAL_API = "https://save-ste-honor-doctrine.trycloudflare.com";
+window.PORTAL_API = "https://hostel-gaming-october-analysts.trycloudflare.com";
