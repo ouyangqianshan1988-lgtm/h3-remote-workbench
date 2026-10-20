@@ -1,1 +1,1 @@
-window.PORTAL_API = "https://hostel-gaming-october-analysts.trycloudflare.com";
+window.PORTAL_API = "https://dc-202407041147.tail677566.ts.net";
