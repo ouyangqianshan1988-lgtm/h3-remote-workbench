@@ -89,7 +89,7 @@ async function refresh() {
     }));
     if (Array.from($('model').options).some(o => o.value === selectedModel && !o.disabled)) $('model').value = selectedModel;
     $('submit-button').disabled = !data.accepting_tasks || data.tasks.some(t => ['uploading','queued','running','ready','downloading','archive_pending'].includes(t.state));
-    if (!downloading) renderTasks(data.tasks);
+    if (!downloading) renderTasks(data.tasks.filter(task => task.state !== 'deleted'));
   }
   catch (error) { $('service-message').textContent = error.message; }
 }
