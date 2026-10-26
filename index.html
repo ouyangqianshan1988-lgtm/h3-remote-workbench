@@ -4,12 +4,16 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>H3 工作台</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f1b2e'/%3E%3Cpath d='M9 8v16m14-16v16M9 16h14' stroke='%2355ccff' stroke-width='4'/%3E%3C/svg%3E">
-  <style>:root{font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;color:#e6edf7;background:#0b1220;font-synthesis:none;color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;flex-direction:column}header{height:88px;padding:0 6vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #223048}.brand{color:#e6edf7;text-decoration:none;display:flex;align-items:center;gap:14px;font-size:18px;font-weight:650}.brand span{background:#172b43;color:#65d2ff;border:1px solid #2d5271;padding:8px;border-radius:8px;letter-spacing:-1px}main{width:min(1100px,88vw);margin:auto;flex:1}.login{width:min(420px,100%);margin:90px auto}.eyebrow{font-size:14px;color:#65d2ff;letter-spacing:2px;margin:0 0 18px}h1{font-size:clamp(28px,4vw,40px);line-height:1.35;margin:0;font-weight:650;letter-spacing:-1px}.intro{color:#a3b2c8;line-height:1.8;margin:16px 0 32px;font-size:16px}label{display:block;font-size:14px;margin:22px 0 10px}input{width:100%;background:#111d30;color:#edf4ff;border:1px solid #36465e;border-radius:8px;padding:14px;font-size:16px;outline:none}input:focus{border-color:#65d2ff;box-shadow:0 0 0 3px #65d2ff22}button{cursor:pointer;font:inherit;border-radius:8px;padding:12px 18px}button:focus-visible{outline:3px solid #fff;outline-offset:3px}.primary{width:100%;margin-top:30px;background:#65d2ff;color:#071421;border:0;font-weight:650}.primary:hover{background:#96e0ff}button:disabled{opacity:.6;cursor:wait}.quiet{background:transparent;color:#b1c5dc;border:1px solid #354359;font-size:14px;margin-left:18px}.heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:65px}.chip{background:#14263c;color:#aacce6;border:1px solid #294460;padding:10px 14px;border-radius:6px;font-size:14px}.notice{padding:18px 20px;background:#142034;border-left:3px solid #65d2ff;line-height:1.7;color:#b8c9dd;margin:32px 0}.empty{border:1px dashed #34435a;border-radius:12px;padding:70px 20px;text-align:center}.empty-mark{color:#5c799b;font-size:36px}h2{font-size:20px;font-weight:500}.empty p{color:#8fa4be;font-size:16px}#login-message{color:#ffbaa9;line-height:1.7;min-height:1.7em;font-size:14px}footer{padding:28px 6vw;color:#7f94af;font-size:14px;display:flex;justify-content:space-between}[hidden]{display:none!important}@media(max-width:600px){header{height:72px}.login{margin:55px auto}.heading{align-items:flex-start;flex-direction:column;margin-top:40px}.chip{font-size:14px}footer{gap:18px;flex-direction:column}.empty{padding:40px 15px}}
+<style>
+:root{font-family:Inter,"Microsoft YaHei",system-ui,sans-serif;color:#e6edf7;background:#0b1220;font-synthesis:none;color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;flex-direction:column}header{height:88px;padding:0 6vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #223048}.brand{color:#e6edf7;text-decoration:none;display:flex;align-items:center;gap:14px;font-size:18px;font-weight:650}.brand span{background:#172b43;color:#65d2ff;border:1px solid #2d5271;padding:8px;border-radius:8px;letter-spacing:-1px}main{width:min(1100px,88vw);margin:auto;flex:1}.login{width:min(420px,100%);margin:90px auto}.eyebrow{font-size:14px;color:#65d2ff;letter-spacing:2px;margin:0 0 18px}h1{font-size:clamp(28px,4vw,40px);line-height:1.35;margin:0;font-weight:650;letter-spacing:-1px}.intro{color:#a3b2c8;line-height:1.8;margin:16px 0 32px;font-size:16px}label{display:block;font-size:14px;margin:22px 0 10px}input{width:100%;background:#111d30;color:#edf4ff;border:1px solid #36465e;border-radius:8px;padding:14px;font-size:16px;outline:none}input:focus{border-color:#65d2ff;box-shadow:0 0 0 3px #65d2ff22}button{cursor:pointer;font:inherit;border-radius:8px;padding:12px 18px}button:focus-visible{outline:3px solid #fff;outline-offset:3px}.primary{width:100%;margin-top:30px;background:#65d2ff;color:#071421;border:0;font-weight:650}.primary:hover{background:#96e0ff}button:disabled{opacity:.6;cursor:wait}.quiet{background:transparent;color:#b1c5dc;border:1px solid #354359;font-size:14px;margin-left:18px}.heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:65px}.chip{background:#14263c;color:#aacce6;border:1px solid #294460;padding:10px 14px;border-radius:6px;font-size:14px}.notice{padding:18px 20px;background:#142034;border-left:3px solid #65d2ff;line-height:1.7;color:#b8c9dd;margin:32px 0}.empty{border:1px dashed #34435a;border-radius:12px;padding:70px 20px;text-align:center}.empty-mark{color:#5c799b;font-size:36px}h2{font-size:20px;font-weight:500}.empty p{color:#8fa4be;font-size:16px}#login-message{color:#ffbaa9;line-height:1.7;min-height:1.7em;font-size:14px}footer{padding:28px 6vw;color:#7f94af;font-size:14px;display:flex;justify-content:space-between}[hidden]{display:none!important}@media(max-width:600px){header{height:72px}.login{margin:55px auto}.heading{align-items:flex-start;flex-direction:column;margin-top:40px}.chip{font-size:14px}footer{gap:18px;flex-direction:column}.empty{padding:40px 15px}}
 textarea,select{width:100%;background:#111d30;color:#edf4ff;border:1px solid #36465e;border-radius:8px;padding:14px;font:inherit;font-size:16px}textarea{resize:vertical}.composer{padding:28px;border:1px solid #29394f;border-radius:12px;margin-bottom:28px;background:#101b2c}.composer h2{margin:0}.options{display:flex;gap:20px}.options>div{flex:1}.hint{font-size:14px;color:#93a6bf}.task-row{display:flex;gap:16px;align-items:center;border:1px solid #2b3d56;padding:20px;border-radius:10px;margin-bottom:14px}.task-row>div{flex:1}.task-row h2{font-size:16px;margin:0}.task-row p{font-size:14px;color:#a9bdd6;margin:12px 0 0}.download{background:#65d2ff;border:0;color:#091c2e}#task-message{line-height:1.7;font-size:14px;color:#b3c8e0}@media(max-width:600px){.options,.task-row{flex-direction:column;align-items:stretch}.composer{padding:20px}.task-row .quiet{margin:0}}
 
 a.download{display:inline-block;text-decoration:none;border-radius:8px;padding:12px 18px;font:inherit;text-align:center}a.download:focus-visible{outline:3px solid white;outline-offset:3px}
+
 .form-actions{display:flex;align-items:center;gap:12px;margin-top:30px}.form-actions .primary{flex:1;width:auto;margin-top:0}.form-actions .quiet{margin:0;white-space:nowrap}@media(max-width:600px){.form-actions{flex-direction:column;align-items:stretch}.form-actions .primary,.form-actions .quiet{width:100%}}
-.lora-option{margin-top:8px;padding:12px 14px;border:1px solid #2b3d56;border-radius:8px;background:#0d1726}.lora-option label{display:flex;align-items:center;gap:10px;margin:0;cursor:pointer}.lora-option input[type=checkbox]{width:18px;height:18px;margin:0;padding:0;accent-color:#65d2ff}.lora-option .hint{margin:8px 0 0 28px}</style><script src="config.js"></script>
+.lora-option{margin-top:8px;padding:12px 14px;border:1px solid #2b3d56;border-radius:8px;background:#0d1726}.lora-option label{display:flex;align-items:center;gap:10px;margin:0;cursor:pointer}.lora-option input[type=checkbox]{width:18px;height:18px;margin:0;padding:0;accent-color:#65d2ff}.lora-option .hint{margin:8px 0 0 28px}
+
+</style><script src="config.js"></script>
 </head>
 <body>
   <header><a class="brand" href="./"><span>H3</span> 工作台</a><div id="identity" hidden><span id="username"></span><button id="logout" class="quiet">退出登录</button></div></header>
@@ -34,7 +38,14 @@ a.download{display:inline-block;text-decoration:none;border-radius:8px;padding:1
         <label for="images">参考图片（可选，最多4张，每张8MB）</label><input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple><p class="hint">不上传图片时，按文字描述生成视频。上传图片不展示预览，按选择顺序编号。</p>
         <label for="resolution">画质</label><select id="resolution" name="resolution"><option value="720p">720p · 最长30秒</option><option value="768p">768p · 画质基准 · 最长30秒</option><option value="1080p">1080p · 最长15秒</option></select><p id="resolution-hint" class="hint"></p>
         <div class="options"><div><label for="orientation">画幅</label><select id="orientation" name="orientation"><option value="landscape">横屏 · 1280 × 720</option><option value="portrait">竖屏 · 720 × 1280</option></select></div><div><label for="seconds">时长</label><select id="seconds" name="seconds"><option value="0.9166666666666666">约1秒 · 测试</option><option value="2.1666666666666665">约2秒</option><option value="5.166666666666667" selected>约5秒</option><option value="10">约10秒</option><option value="15">约15秒</option><option value="20">约20秒</option><option value="30">约30秒</option></select></div></div>
-        <div class="form-actions"><button id="submit-button" class="primary" type="submit">提交生成</button><button id="clear-form-button" class="quiet" type="button">清空表单</button></div><p id="task-message" role="status"></p><script>'use strict';
+        <div class="form-actions"><button id="submit-button" class="primary" type="submit">提交生成</button><button id="clear-form-button" class="quiet" type="button">清空表单</button></div><p id="task-message" role="status"></p>
+      </form>
+      <div id="tasks" class="tasks"><div class="empty"><span class="empty-mark">—</span><h2>暂无运行任务</h2><p>运行中的任务将在这里显示进度。</p></div></div>
+    </section>
+  </main>
+  <footer>H3 工作台 <span>账号会话仅保留在当前页面</span></footer>
+<script>
+'use strict';
 let token = '';
 let poll;
 let downloading = false;
@@ -62,8 +73,8 @@ function updateDasiwaLoraOption() {
   $('use-lora').disabled = !visible || !dasiwaTurboLoraAvailable;
   if (!visible) $('use-lora').checked = false;
   $('dasiwa-lora-hint').textContent = dasiwaTurboLoraAvailable
-    ? 'Only applies to DaSiWa Turbo V3; when off, the LoRA is not loaded.'
-    : 'LoRA is not installed yet; this option will become available after installation.';
+    ? '仅对 DaSiWa Turbo V3 生效；关闭时工作流不加载此 LoRA。'
+    : 'LoRA尚未安装完成，安装后此开关会自动启用。';
 }
 $('resolution').addEventListener('change', updateResolution);
 $('model').addEventListener('change', () => {
@@ -72,6 +83,9 @@ $('model').addEventListener('change', () => {
   updateDasiwaLoraOption();
 });
 updateResolution();
+// PORTAL_API 只在「页面不是由门户自己托管」时才需要（GitHub Pages 那种）。
+// 门户自己托管时（不管是 127.0.0.1、局域网 IP 还是公网隧道域名），一律用 location.origin，
+// 这样请求是同源，既不会踩跨域，也不用把每个访问地址都加进来源白名单。
 const base = (window.PORTAL_API || (['localhost', '127.0.0.1'].includes(location.hostname) ? location.origin : '')).replace(/\/$/, '');
 async function api(path, options = {}) {
   if (!base) throw new Error('远程工作站尚未连接，请联系管理员。');
@@ -192,8 +206,7 @@ $('logout').addEventListener('click', async () => {
   try { await api('/api/logout', {method: 'POST'}); } catch (_) {}
   token = ''; downloadLinks.clear(); receipts.clear(); clearInterval(poll); $('workspace').hidden = true; $('identity').hidden = true; $('login-panel').hidden = false;
 });
-</script>/logout', {method: 'POST'}); } catch (_) {}
-  token = ''; downloadLinks.clear(); receipts.clear(); clearInterval(poll); $('workspace').hidden = true; $('identity').hidden = true; $('login-panel').hidden = false;
-});
-</script></body>
+
+</script>
+</body>
 </html>
