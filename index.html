@@ -1,4 +1,4 @@
-<!-- pages-cache-refresh-20261027 -->
+<!-- lora-strength-20261027 -->
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -13,6 +13,7 @@ a.download{display:inline-block;text-decoration:none;border-radius:8px;padding:1
 
 .form-actions{display:flex;align-items:center;gap:12px;margin-top:30px}.form-actions .primary{flex:1;width:auto;margin-top:0}.form-actions .quiet{margin:0;white-space:nowrap}@media(max-width:600px){.form-actions{flex-direction:column;align-items:stretch}.form-actions .primary,.form-actions .quiet{width:100%}}
 .lora-option{margin-top:8px;padding:12px 14px;border:1px solid #2b3d56;border-radius:8px;background:#0d1726}.lora-option label{display:flex;align-items:center;gap:10px;margin:0;cursor:pointer}.lora-option input[type=checkbox]{width:18px;height:18px;margin:0;padding:0;accent-color:#65d2ff}.lora-option .hint{margin:8px 0 0 28px}
+.lora-strength-row{margin:12px 0 0 28px}.lora-option .lora-strength-row label{justify-content:space-between;margin:0 0 6px}.lora-option input[type=range]{width:100%;padding:0;accent-color:#65d2ff}.lora-strength-row output{font-variant-numeric:tabular-nums;color:#b8c9dd}
 
 </style><script src="config.js"></script>
 </head>
@@ -34,7 +35,7 @@ a.download{display:inline-block;text-decoration:none;border-radius:8px;padding:1
       <form id="task-form" class="composer">
         <h2>新建任务</h2>
         <label for="model">生成模型</label><select id="model" name="model"><option value="original">H3二采</option></select>
-        <div id="dasiwa-lora-option" class="lora-option" hidden><label for="use-lora"><input id="use-lora" name="use_lora" type="checkbox" disabled> 启用 DaSiWa Turbo LoRA</label><p id="dasiwa-lora-hint" class="hint">LoRA尚未安装。</p></div>
+        <div id="dasiwa-lora-option" class="lora-option" hidden><label for="use-lora"><input id="use-lora" name="use_lora" type="checkbox" disabled> 启用 DaSiWa Turbo LoRA</label><div class="lora-strength-row"><label for="lora-strength">LoRA 强度 <output id="lora-strength-value" for="lora-strength">1.00</output></label><input id="lora-strength" name="lora_strength" type="range" min="0" max="1" step="0.01" value="1" disabled></div><p id="dasiwa-lora-hint" class="hint">LoRA尚未安装。</p></div>
         <label for="prompt">描述视频</label><textarea id="prompt" name="prompt" rows="12" maxlength="4000" required placeholder="用 Picture 1、Picture 2 指代参考图，描述动作、场景与声音。"></textarea>
         <label for="images">参考图片（可选，最多4张，每张8MB）</label><input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple><p class="hint">不上传图片时，按文字描述生成视频。上传图片不展示预览，按选择顺序编号。</p>
         <label for="resolution">画质</label><select id="resolution" name="resolution"><option value="720p">720p · 最长30秒</option><option value="768p">768p · 画质基准 · 最长30秒</option><option value="1080p">1080p · 最长15秒</option></select><p id="resolution-hint" class="hint"></p>
@@ -52,6 +53,7 @@ let poll;
 let downloading = false;
 let archiveEnabled = false;
 let dasiwaTurboLoraAvailable = false;
+let dasiwaTurboLoraStrengthAvailable = false;
 const receipts = new Map();
 const downloadLinks = new Map();
 const $ = id => document.getElementById(id);
@@ -72,11 +74,18 @@ function updateDasiwaLoraOption() {
   const visible = $('model').value === 'dasiwa-turbo-v3';
   $('dasiwa-lora-option').hidden = !visible;
   $('use-lora').disabled = !visible || !dasiwaTurboLoraAvailable;
+  $('lora-strength').disabled = !visible || !dasiwaTurboLoraAvailable || !dasiwaTurboLoraStrengthAvailable || !$('use-lora').checked;
   if (!visible) $('use-lora').checked = false;
-  $('dasiwa-lora-hint').textContent = dasiwaTurboLoraAvailable
-    ? '仅对 DaSiWa Turbo V3 生效；关闭时工作流不加载此 LoRA。'
-    : 'LoRA尚未安装完成，安装后此开关会自动启用。';
+  $('dasiwa-lora-hint').textContent = !dasiwaTurboLoraAvailable
+    ? 'LoRA尚未安装完成，安装后此开关会自动启用。'
+    : !dasiwaTurboLoraStrengthAvailable
+      ? '工作站更新重启后可调节强度；当前默认强度为1.00。'
+      : '仅对 DaSiWa Turbo V3 生效；关闭时工作流不加载此 LoRA。';
 }
+$('use-lora').addEventListener('change', updateDasiwaLoraOption);
+$('lora-strength').addEventListener('input', () => {
+  $('lora-strength-value').value = Number($('lora-strength').value).toFixed(2);
+});
 $('resolution').addEventListener('change', updateResolution);
 $('model').addEventListener('change', () => {
   if ($('model').value === 'h3-quality') $('resolution').value = '768p';
@@ -103,6 +112,7 @@ async function refresh() {
     const data = await api('/api/tasks'); $('service-message').textContent = data.message;
     archiveEnabled = Boolean(data.archive);
     dasiwaTurboLoraAvailable = Boolean(data.dasiwa_turbo_lora_available);
+    dasiwaTurboLoraStrengthAvailable = Boolean(data.dasiwa_turbo_lora_strength_available);
     const selectedModel = $('model').value;
     $('model').replaceChildren(...(data.models || []).map(model => {
       const option = new Option(model.name + (model.available ? '' : ' · 未安装'), model.id);
@@ -198,6 +208,8 @@ $('task-form').addEventListener('submit',async event=>{
 $('clear-form-button').addEventListener('click',()=>{
   $('task-form').reset();
   updateResolution();
+  updateDasiwaLoraOption();
+  $('lora-strength-value').value = Number($('lora-strength').value).toFixed(2);
   $('task-message').textContent='表单已清空。';
 });
 if (document.modelContext?.registerTool) {
