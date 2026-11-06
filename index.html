@@ -32,13 +32,14 @@ a.download{display:inline-block;text-decoration:none;border-radius:8px;padding:1
       <form id="task-form" class="composer">
         <h2>新建任务</h2>
         <label for="model">生成模型</label><select id="model" name="model"><option value="yz-goldfish" selected>YZ金鱼</option><option value="dasiwa-turbo-v3">DaSiWa Turbo V3</option></select>
+        <div id="yz-fight-lora-option" class="lora-option" hidden><label for="use-yz-fight-lora"><input id="use-yz-fight-lora" name="use_yz_fight_lora" type="checkbox" disabled> 启用武打 LoRA（Combat V2）</label><div class="lora-strength-row"><label for="yz-fight-lora-strength">武打 LoRA 权重 <output id="yz-fight-lora-strength-value" for="yz-fight-lora-strength">0.65</output></label><input id="yz-fight-lora-strength" name="yz_fight_lora_strength" type="range" min="0" max="1" step="0.01" value="0.65" disabled></div><p id="yz-fight-lora-hint" class="hint">武打 LoRA 尚未安装。</p></div>
         <div id="dasiwa-lora-option" class="lora-option" hidden><label for="use-lora"><input id="use-lora" name="use_lora" type="checkbox" disabled> 启用 DaSiWa Turbo LoRA</label><div class="lora-strength-row"><label for="lora-strength">LoRA 强度 <output id="lora-strength-value" for="lora-strength">1.00</output></label><input id="lora-strength" name="lora_strength" type="range" min="0" max="1" step="0.01" value="1" disabled></div><p id="dasiwa-lora-hint" class="hint">LoRA尚未安装。</p></div>
         <label for="prompt">描述视频</label><textarea id="prompt" name="prompt" rows="12" maxlength="4000" required placeholder="用 Picture 1、Video 1、Audio 1 等名称指代参考素材，描述动作、场景与声音。"></textarea>
         <label for="images">参考图片（可选，最多4张，每张8MB）</label><input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple>
         <div id="media-reference-options" hidden><label for="videos">参考视频（可选，1个，最多40MB）</label><input id="videos" name="videos" type="file" accept="video/mp4,video/quicktime,video/x-matroska,video/webm,video/gif" disabled><p class="hint">取视频前15秒作为画面参考；视频自带音轨也会作为音频参考。</p>
         <label for="audios">参考音频（可选，1个，最多16MB）</label><input id="audios" name="audios" type="file" accept="audio/wav,audio/mpeg,audio/ogg,audio/mp4,audio/flac" disabled><p class="hint">单独音频取前30秒；不会在网页预览。图片先编号，视频音轨会排在对应视频前；若同时上传独立音频，它会排在视频音轨之后。提示词可用 Picture 1、Video 1、Audio 1 等标签指代。</p></div>
         <label for="resolution">画质</label><select id="resolution" name="resolution"><option value="720p">720p · 最长30秒</option><option value="768p">768p · 画质基准 · 最长30秒</option><option value="1080p">1080p · 最长15秒</option></select><p id="resolution-hint" class="hint"></p>
-        <div class="options"><div id="aspect-ratio-control" hidden><label for="aspect-ratio">长宽比</label><select id="aspect-ratio" name="aspect_ratio" disabled><option value="16:9" selected>16:9 · 横屏</option><option value="9:16">9:16 · 竖屏</option><option value="1:1">1:1 · 正方形</option><option value="4:3">4:3 · 横屏</option><option value="3:4">3:4 · 竖屏</option><option value="3:2">3:2 · 横屏</option><option value="2:3">2:3 · 竖屏</option><option value="21:9">21:9 · 超宽屏</option></select></div><div id="legacy-orientation-control"><label for="orientation">画幅</label><select id="orientation" name="orientation"><option value="landscape">横屏</option><option value="portrait">竖屏</option></select></div><div><label for="seconds">时长</label><select id="seconds" name="seconds"><option value="0.9166666666666666">约1秒 · 测试</option><option value="2.1666666666666665">约2秒</option><option value="5.166666666666667" selected>约5秒</option><option value="10">约10秒</option><option value="15">约15秒</option><option value="20">约20秒</option><option value="30">约30秒</option></select></div></div>
+        <div class="options"><div id="aspect-ratio-control" hidden><label for="aspect-ratio">长宽比</label><select id="aspect-ratio" name="aspect_ratio" disabled><option value="16:9">16:9 · 横屏</option><option value="9:16" selected>9:16 · 竖屏</option><option value="1:1">1:1 · 正方形</option><option value="4:3">4:3 · 横屏</option><option value="3:4">3:4 · 竖屏</option><option value="3:2">3:2 · 横屏</option><option value="2:3">2:3 · 竖屏</option><option value="21:9">21:9 · 超宽屏</option></select></div><div id="legacy-orientation-control"><label for="orientation">画幅</label><select id="orientation" name="orientation"><option value="landscape">横屏</option><option value="portrait" selected>竖屏</option></select></div><div><label for="seconds">时长</label><select id="seconds" name="seconds"><option value="0.9166666666666666">约1秒 · 测试</option><option value="2.1666666666666665">约2秒</option><option value="5.166666666666667" selected>约5秒</option><option value="10">约10秒</option><option value="15">约15秒</option><option value="20">约20秒</option><option value="30">约30秒</option></select></div></div>
         <div class="form-actions"><button id="submit-button" class="primary" type="submit">提交生成</button><button id="clear-form-button" class="quiet" type="button">清空表单</button></div><p id="task-message" role="status"></p>
       </form>
       <div id="tasks" class="tasks"><div class="empty"><span class="empty-mark">—</span><h2>暂无运行任务</h2><p>运行中的任务将在这里显示进度。</p></div></div>
@@ -52,6 +53,7 @@ let downloading = false;
 let archiveEnabled = false;
 let dasiwaTurboLoraAvailable = false;
 let dasiwaTurboLoraStrengthAvailable = false;
+let yzFightLoraAvailable = false;
 let mediaReferenceAvailable = false;
 let aspectRatioAvailable = false;
 const receipts = new Map();
@@ -95,28 +97,40 @@ function updateInputCapabilities(data) {
   $('legacy-orientation-control').hidden = aspectRatioAvailable;
   $('orientation').disabled = aspectRatioAvailable;
 }
-function updateDasiwaLoraOption() {
-  const visible = $('model').value === 'dasiwa-turbo-v3';
-  $('dasiwa-lora-option').hidden = !visible;
-  $('use-lora').disabled = !visible || !dasiwaTurboLoraAvailable;
-  $('lora-strength').disabled = !visible || !dasiwaTurboLoraAvailable || !dasiwaTurboLoraStrengthAvailable || !$('use-lora').checked;
-  if (!visible) $('use-lora').checked = false;
+function updateLoraOptions() {
+  const isDasiwa = $('model').value === 'dasiwa-turbo-v3';
+  const isYz = $('model').value === 'yz-goldfish';
+  $('dasiwa-lora-option').hidden = !isDasiwa;
+  $('yz-fight-lora-option').hidden = !isYz;
+  $('use-lora').disabled = !isDasiwa || !dasiwaTurboLoraAvailable;
+  $('lora-strength').disabled = !isDasiwa || !dasiwaTurboLoraAvailable || !dasiwaTurboLoraStrengthAvailable || !$('use-lora').checked;
+  $('use-yz-fight-lora').disabled = !isYz || !yzFightLoraAvailable;
+  $('yz-fight-lora-strength').disabled = !isYz || !yzFightLoraAvailable || !$('use-yz-fight-lora').checked;
+  if (!isDasiwa) $('use-lora').checked = false;
+  if (!isYz) $('use-yz-fight-lora').checked = false;
   $('dasiwa-lora-hint').textContent = !dasiwaTurboLoraAvailable
     ? 'LoRA尚未安装完成，安装后此开关会自动启用。'
     : !dasiwaTurboLoraStrengthAvailable
       ? '工作站更新重启后可调节强度；当前默认强度为1.00。'
       : '仅对 DaSiWa Turbo V3 生效；关闭时工作流不加载此 LoRA。';
+  $('yz-fight-lora-hint').textContent = yzFightLoraAvailable
+    ? '仅对 YZ 金鱼生效；权重范围 0–1。默认关闭，开启后加载 Combat V2。'
+    : '未找到 Combat V2 武打 LoRA，安装到 YZ 金鱼模型的 loras 文件夹后会启用。';
 }
-$('use-lora').addEventListener('change', updateDasiwaLoraOption);
+$('use-lora').addEventListener('change', updateLoraOptions);
+$('use-yz-fight-lora').addEventListener('change', updateLoraOptions);
 $('lora-strength').addEventListener('input', () => {
   $('lora-strength-value').value = Number($('lora-strength').value).toFixed(2);
+});
+$('yz-fight-lora-strength').addEventListener('input', () => {
+  $('yz-fight-lora-strength-value').value = Number($('yz-fight-lora-strength').value).toFixed(2);
 });
 $('resolution').addEventListener('change', updateResolution);
 $('aspect-ratio').addEventListener('change', updateAspectRatio);
 $('model').addEventListener('change', () => {
   if ($('model').value === 'h3-quality') $('resolution').value = '768p';
   updateResolution();
-  updateDasiwaLoraOption();
+  updateLoraOptions();
 });
 updateResolution();
 // PORTAL_API 只在「页面不是由门户自己托管」时才需要（GitHub Pages 那种）。
@@ -140,6 +154,7 @@ async function refresh() {
     archiveEnabled = Boolean(data.archive);
     dasiwaTurboLoraAvailable = Boolean(data.dasiwa_turbo_lora_available);
     dasiwaTurboLoraStrengthAvailable = Boolean(data.dasiwa_turbo_lora_strength_available);
+    yzFightLoraAvailable = Boolean(data.yz_fight_lora_available);
     const selectedModel = $('model').value;
     $('model').replaceChildren(...(data.models || []).map(model => {
       const option = new Option(model.name + (model.available ? '' : ' · 未安装'), model.id);
@@ -147,7 +162,7 @@ async function refresh() {
       return option;
     }));
     if (Array.from($('model').options).some(o => o.value === selectedModel && !o.disabled)) $('model').value = selectedModel;
-    updateDasiwaLoraOption();
+    updateLoraOptions();
     $('submit-button').disabled = !data.accepting_tasks || data.tasks.some(t => ['uploading','queued','running','ready','downloading','archive_pending'].includes(t.state));
     if (!downloading) renderTasks(data.tasks.filter(task => task.state !== 'deleted'));
   }
@@ -235,8 +250,9 @@ $('task-form').addEventListener('submit',async event=>{
 $('clear-form-button').addEventListener('click',()=>{
   $('task-form').reset();
   updateResolution();
-  updateDasiwaLoraOption();
+  updateLoraOptions();
   $('lora-strength-value').value = Number($('lora-strength').value).toFixed(2);
+  $('yz-fight-lora-strength-value').value = Number($('yz-fight-lora-strength').value).toFixed(2);
   $('task-message').textContent='表单已清空。';
 });
 if (document.modelContext?.registerTool) {
