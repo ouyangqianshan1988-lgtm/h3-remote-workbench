@@ -33,6 +33,7 @@ a.download{display:inline-block;text-decoration:none;border-radius:8px;padding:1
         <h2>新建任务</h2>
         <label for="model">生成模型</label><select id="model" name="model"><option value="yz-goldfish" selected>YZ金鱼</option><option value="dasiwa-turbo-v3">DaSiWa Turbo V3</option></select>
         <div id="yz-fight-lora-option" class="lora-option" hidden><label for="use-yz-fight-lora"><input id="use-yz-fight-lora" name="use_yz_fight_lora" type="checkbox" disabled> 启用武打 LoRA（Combat V2）</label><div class="lora-strength-row"><label for="yz-fight-lora-strength">武打 LoRA 权重 <output id="yz-fight-lora-strength-value" for="yz-fight-lora-strength">0.65</output></label><input id="yz-fight-lora-strength" name="yz_fight_lora_strength" type="range" min="0" max="1" step="0.01" value="0.65" disabled></div><p id="yz-fight-lora-hint" class="hint">武打 LoRA 尚未安装。</p></div>
+        <div id="yz-dasiwa-lora-option" class="lora-option" hidden><label for="use-yz-dasiwa-lora"><input id="use-yz-dasiwa-lora" name="use_yz_dasiwa_lora" type="checkbox" disabled> 启用 DaSiWa Turbo LoRA（Unlocked V2.1）</label><div class="lora-strength-row"><label for="yz-dasiwa-lora-strength">DaSiWa LoRA 权重 <output id="yz-dasiwa-lora-strength-value" for="yz-dasiwa-lora-strength">1.00</output></label><input id="yz-dasiwa-lora-strength" name="yz_dasiwa_lora_strength" type="range" min="0" max="1" step="0.01" value="1" disabled></div><p id="yz-dasiwa-lora-hint" class="hint">DaSiWa Turbo LoRA 尚未安装。</p></div>
         <div id="dasiwa-lora-option" class="lora-option" hidden><label for="use-lora"><input id="use-lora" name="use_lora" type="checkbox" disabled> 启用 DaSiWa Turbo LoRA</label><div class="lora-strength-row"><label for="lora-strength">LoRA 强度 <output id="lora-strength-value" for="lora-strength">1.00</output></label><input id="lora-strength" name="lora_strength" type="range" min="0" max="1" step="0.01" value="1" disabled></div><p id="dasiwa-lora-hint" class="hint">LoRA尚未安装。</p></div>
         <label for="prompt">描述视频</label><textarea id="prompt" name="prompt" rows="12" maxlength="4000" required placeholder="用 Picture 1、Video 1、Audio 1 等名称指代参考素材，描述动作、场景与声音。"></textarea>
         <label for="images">参考图片（可选，最多9张，每张8MB）</label><input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple>
@@ -102,12 +103,16 @@ function updateLoraOptions() {
   const isYz = $('model').value === 'yz-goldfish';
   $('dasiwa-lora-option').hidden = !isDasiwa;
   $('yz-fight-lora-option').hidden = !isYz;
+  $('yz-dasiwa-lora-option').hidden = !isYz;
   $('use-lora').disabled = !isDasiwa || !dasiwaTurboLoraAvailable;
   $('lora-strength').disabled = !isDasiwa || !dasiwaTurboLoraAvailable || !dasiwaTurboLoraStrengthAvailable || !$('use-lora').checked;
   $('use-yz-fight-lora').disabled = !isYz || !yzFightLoraAvailable;
   $('yz-fight-lora-strength').disabled = !isYz || !yzFightLoraAvailable || !$('use-yz-fight-lora').checked;
+  $('use-yz-dasiwa-lora').disabled = !isYz || !dasiwaTurboLoraAvailable;
+  $('yz-dasiwa-lora-strength').disabled = !isYz || !dasiwaTurboLoraAvailable || !dasiwaTurboLoraStrengthAvailable || !$('use-yz-dasiwa-lora').checked;
   if (!isDasiwa) $('use-lora').checked = false;
   if (!isYz) $('use-yz-fight-lora').checked = false;
+  if (!isYz) $('use-yz-dasiwa-lora').checked = false;
   $('dasiwa-lora-hint').textContent = !dasiwaTurboLoraAvailable
     ? 'LoRA尚未安装完成，安装后此开关会自动启用。'
     : !dasiwaTurboLoraStrengthAvailable
@@ -116,14 +121,21 @@ function updateLoraOptions() {
   $('yz-fight-lora-hint').textContent = yzFightLoraAvailable
     ? '仅对 YZ 金鱼生效；权重范围 0–1。默认关闭，开启后加载 Combat V2。'
     : '未找到 Combat V2 武打 LoRA，安装到 YZ 金鱼模型的 loras 文件夹后会启用。';
+  $('yz-dasiwa-lora-hint').textContent = !dasiwaTurboLoraAvailable
+    ? 'DaSiWa Turbo LoRA 尚未安装完成。'
+    : '仅对 YZ 金鱼生效；与武打 LoRA 独立开关，可分别启用或同时叠加。权重范围 0–1。';
 }
 $('use-lora').addEventListener('change', updateLoraOptions);
 $('use-yz-fight-lora').addEventListener('change', updateLoraOptions);
+$('use-yz-dasiwa-lora').addEventListener('change', updateLoraOptions);
 $('lora-strength').addEventListener('input', () => {
   $('lora-strength-value').value = Number($('lora-strength').value).toFixed(2);
 });
 $('yz-fight-lora-strength').addEventListener('input', () => {
   $('yz-fight-lora-strength-value').value = Number($('yz-fight-lora-strength').value).toFixed(2);
+});
+$('yz-dasiwa-lora-strength').addEventListener('input', () => {
+  $('yz-dasiwa-lora-strength-value').value = Number($('yz-dasiwa-lora-strength').value).toFixed(2);
 });
 $('resolution').addEventListener('change', updateResolution);
 $('aspect-ratio').addEventListener('change', updateAspectRatio);
@@ -253,6 +265,7 @@ $('clear-form-button').addEventListener('click',()=>{
   updateLoraOptions();
   $('lora-strength-value').value = Number($('lora-strength').value).toFixed(2);
   $('yz-fight-lora-strength-value').value = Number($('yz-fight-lora-strength').value).toFixed(2);
+  $('yz-dasiwa-lora-strength-value').value = Number($('yz-dasiwa-lora-strength').value).toFixed(2);
   $('task-message').textContent='表单已清空。';
 });
 if (document.modelContext?.registerTool) {
