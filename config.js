@@ -1,1 +1,1 @@
-window.PORTAL_API = 'https://action-warcraft-nut-funny.trycloudflare.com';
+window.PORTAL_API = "https://buy-salon-firms-cassette.trycloudflare.com";
