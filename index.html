@@ -13,6 +13,7 @@ a.download{display:inline-block;text-decoration:none;border-radius:8px;padding:1
 .lora-option{margin-top:8px;padding:12px 14px;border:1px solid #2b3d56;border-radius:8px;background:#0d1726}.lora-option label{display:flex;align-items:center;gap:10px;margin:0;cursor:pointer}.lora-option input[type=checkbox]{width:18px;height:18px;margin:0;padding:0;accent-color:#65d2ff}.lora-option .hint{margin:8px 0 0 28px}
 .lora-strength-row{margin:12px 0 0 28px}.lora-option .lora-strength-row label{justify-content:space-between;margin:0 0 6px}.lora-option input[type=range]{width:100%;padding:0;accent-color:#65d2ff}.lora-strength-row output{font-variant-numeric:tabular-nums;color:#b8c9dd}
 .image-slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;margin:14px 0 22px;padding:0;list-style:none}.image-slots li{min-width:0;padding:10px;border:1px solid #34465f;border-radius:8px;background:#0c1625;display:flex;flex-direction:column;gap:8px}.image-slots strong{color:#65d2ff;font-size:14px}.image-slots img{display:block;width:100%;height:130px;object-fit:contain;background:#080f1a;border-radius:4px}.image-slot-name{font-size:12px;color:#adbed4;overflow-wrap:anywhere}.image-preview-error{min-height:130px;display:grid;place-items:center;font-size:13px;color:#ffbaa9;margin:0}@media(max-width:600px){.image-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.image-slots img{height:110px}}
+.image-slots li{cursor:grab}.image-slots li:active{cursor:grabbing}.image-slots li:focus-visible{outline:2px solid #65d2ff;outline-offset:3px}.image-slots .dragging{opacity:.45}.image-slots .drop-target{border-color:#65d2ff;box-shadow:0 0 0 2px #65d2ff;background:#142c40}
 </style><script src="config.js"></script>
 </head>
 <body>
@@ -38,7 +39,7 @@ a.download{display:inline-block;text-decoration:none;border-radius:8px;padding:1
         <div id="dasiwa-lora-option" class="lora-option" hidden><label for="use-lora"><input id="use-lora" name="use_lora" type="checkbox" disabled> 启用 DaSiWa Turbo LoRA</label><div class="lora-strength-row"><label for="lora-strength">LoRA 强度 <output id="lora-strength-value" for="lora-strength">1.00</output></label><input id="lora-strength" name="lora_strength" type="range" min="0" max="1" step="0.01" value="1" disabled></div><p id="dasiwa-lora-hint" class="hint">LoRA尚未安装。</p></div>
         <label for="prompt">描述视频</label><textarea id="prompt" name="prompt" rows="12" maxlength="4000" required placeholder="用 Picture 1、Video 1、Audio 1 等名称指代参考素材，描述动作、场景与声音。"></textarea>
         <label for="images">参考图片（可选，最多9张，每张8MB）</label><input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple>
-        <p class="hint" id="image-slot-hint">选图后显示缩略图与 Picture 编号，编号顺序与提交给模型的顺序一致。</p>
+        <p class="hint" id="image-slot-hint" role="status">拖动缩略图到另一张图上可交换顺序，也可聚焦图片后按 Alt＋左右方向键。Picture 编号与提交顺序同步更新，请对应检查提示词。</p>
         <ol id="image-slots" class="image-slots" aria-label="参考图片与 Picture 编号对应" hidden></ol>
         <div id="media-reference-options" hidden><label for="videos">参考视频（可选，1个，最多40MB）</label><input id="videos" name="videos" type="file" accept="video/mp4,video/quicktime,video/x-matroska,video/webm,video/gif" disabled><p class="hint">取视频前15秒作为画面参考；视频自带音轨也会作为音频参考。</p>
         <label for="audios">参考音频（可选，1个，最多16MB）</label><input id="audios" name="audios" type="file" accept="audio/wav,audio/mpeg,audio/ogg,audio/mp4,audio/flac" disabled><p class="hint">单独音频取前30秒；不会在网页预览。图片先编号，视频音轨会排在对应视频前；若同时上传独立音频，它会排在视频音轨之后。提示词可用 Picture 1、Video 1、Audio 1 等标签指代。</p></div>
@@ -68,7 +69,23 @@ const downloadLinks = new Map();
 const $ = id => document.getElementById(id);
 const uploadLimits = {images: 8 * 1024 * 1024, videos: 40 * 1024 * 1024, audios: 16 * 1024 * 1024};
 let imagePreviewUrls = [];
+let draggedImageIndex = null;
+function swapImageSlots(from, to) {
+  const files = Array.from($('images').files || []);
+  if (!Number.isInteger(from) || !Number.isInteger(to) || from === to ||
+      from < 0 || to < 0 || from >= files.length || to >= files.length) return;
+  [files[from], files[to]] = [files[to], files[from]];
+  const reordered = new DataTransfer();
+  for (const file of files) reordered.items.add(file);
+  $('images').files = reordered.files;
+  renderImageSlots();
+  validateUploads();
+  $('image-slot-hint').textContent = `已交换 Picture ${from + 1} 与 Picture ${to + 1}；实际提交顺序已更新，请同步检查提示词中的编号。可继续拖动，或按住 Alt 加左右方向键交换。`;
+  $('image-slots').children[to]?.focus({preventScroll: true});
+}
 function renderImageSlots() {
+  draggedImageIndex = null;
+  $('image-slot-hint').textContent = '拖动缩略图到另一张图上可交换顺序，也可聚焦图片后按 Alt＋左右方向键。Picture 编号与提交顺序同步更新，请对应检查提示词。';
   for (const url of imagePreviewUrls) URL.revokeObjectURL(url);
   imagePreviewUrls = [];
   const container = $('image-slots');
@@ -77,10 +94,48 @@ function renderImageSlots() {
   container.hidden = files.length === 0;
   for (const [index, file] of files.slice(0, 9).entries()) {
     const slot = document.createElement('li');
+    slot.draggable = true;
+    slot.tabIndex = 0;
+    slot.title = '拖到另一张图上交换顺序；也可按 Alt + 左右方向键';
+    slot.setAttribute('aria-keyshortcuts', 'Alt+ArrowLeft Alt+ArrowRight');
+    slot.addEventListener('dragstart', event => {
+      draggedImageIndex = index;
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', `Picture ${index + 1}`);
+      slot.classList.add('dragging');
+    });
+    slot.addEventListener('dragover', event => {
+      if (!Number.isInteger(draggedImageIndex) || draggedImageIndex === index) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      slot.classList.add('drop-target');
+    });
+    slot.addEventListener('dragleave', event => {
+      if (!slot.contains(event.relatedTarget)) slot.classList.remove('drop-target');
+    });
+    slot.addEventListener('drop', event => {
+      if (!Number.isInteger(draggedImageIndex)) return;
+      event.preventDefault();
+      const from = draggedImageIndex;
+      draggedImageIndex = null;
+      slot.classList.remove('drop-target');
+      slot.classList.remove('dragging');
+      swapImageSlots(from, index);
+    });
+    slot.addEventListener('dragend', () => {
+      draggedImageIndex = null;
+      for (const card of container.children) card.classList.remove('dragging', 'drop-target');
+    });
+    slot.addEventListener('keydown', event => {
+      if (!event.altKey || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+      event.preventDefault();
+      swapImageSlots(index, index + (event.key === 'ArrowLeft' ? -1 : 1));
+    });
     const picture = `Picture ${index + 1}`;
     const label = document.createElement('strong');
     label.textContent = picture;
     const preview = document.createElement('img');
+    preview.draggable = false;
     preview.alt = `${picture}：${file.name}`;
     const url = URL.createObjectURL(file);
     imagePreviewUrls.push(url);
